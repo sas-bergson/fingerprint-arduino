@@ -2,6 +2,8 @@
 bin/
 build/
 .vscode/
+docs/html/
+docs/latex/
 
 # Prerequisites
 *.d
