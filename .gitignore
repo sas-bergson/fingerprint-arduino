@@ -37,3 +37,6 @@ docs/latex/
 *.exe
 *.out
 *.app
+
+# Compiled docs archives
+*.stamp

@@ -24,7 +24,7 @@ add_custom_command(
     COMMAND
         doxygen ../../docs/doxygen.cfg
     COMMAND
-        cmake -E touch ../../../docs/doxygen.stamp
+        cmake -E touch ../../docs/doxygen.stamp
     COMMAND
         make -C ../../docs/latex
     COMMENT
