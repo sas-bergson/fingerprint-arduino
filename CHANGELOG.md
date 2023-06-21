@@ -8,7 +8,7 @@
 
 ### log
 
-ef3373b (HEAD -> main) add multithreading
+    - ef3373b (HEAD -> main) add multithreading
 
 ## Create cmake.yml (2023-06-21 18:27:37)
 
@@ -18,7 +18,7 @@ ef3373b (HEAD -> main) add multithreading
 
 ### log (2023-06-21 18:27:37)
 
-ec87546 Create cmake.yml
+    - ec87546 Create cmake.yml
 
 ## initial commit (2023-06-21 08:11:25)
 
@@ -29,6 +29,6 @@ ec87546 Create cmake.yml
 
 ### log (2023-06-21 08:11:25)
 
-6edcb27 (HEAD -> main, origin/main) initial commit
-f443af9 initial commit
-6956f7f initial commit
+    - 6edcb27 (HEAD -> main, origin/main) initial commit
+    - f443af9 initial commit
+    - 6956f7f initial commit
