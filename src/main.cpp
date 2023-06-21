@@ -8,8 +8,9 @@
 #define MAX_DATA_LENGTH 255
 
 SerialPort *arduino;                  // Declare a pointer to the arduino serial port 
-char incomingData[MAX_DATA_LENGTH];   // Declare a buffer to collect incoming data from the port
-char data;                            // Declare a variable to hold the incoming data
+char incomingData;                    // Declare a buffer to collect incoming data from the port
+char userInput[MAX_DATA_LENGTH];      // Declare a buffer to collect user input
+int pid;                              // Declare a process ID
 
 const std::string currentDateTime() {
     time_t     now = time(0);
@@ -27,17 +28,34 @@ int main(void)
 {
   arduino = new SerialPort();
   arduino->setup();
+  sleep(1);
   std::cout << currentDateTime() << "-->" << "[Connecting to arduino]: " <<((arduino->isConnected())?"Success":"Fail") << std::endl;
-  while(arduino->isConnected()){
-    if (arduino->readSerialPort(&data,1)>0)
+  
+  if(arduino->isConnected()){
+    pid = fork();   // Fork a child process
+  }
+
+  while(arduino->isConnected())
+  {
+     if(pid == 0)
     {
-      std::cout << data;
-      if (data == '\n')
+      while (arduino->readSerialPort(&incomingData,1)>0)
       {
-        std::cout << currentDateTime() << "-->";
-      }      
+        std::cout << incomingData;
+        if (incomingData == '\n')
+        {
+          std::cout << currentDateTime() << "-->";
+        }      
+      }
+    }
+    else
+    {
+      std::cin >> userInput;
+      arduino->writeSerialPort(userInput,sizeof userInput);
     }
   }
+
   delete(arduino);
+  
   return EXIT_SUCCESS;
 }
