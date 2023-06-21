@@ -8,7 +8,7 @@
 
 ### log
 
-ec87546 Create cmake.yml
+ef3373b (HEAD -> main) add multithreading
 
 ## Create cmake.yml (2023-06-21 18:27:37)
 
