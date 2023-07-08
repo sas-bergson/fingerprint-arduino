@@ -1,12 +1,23 @@
 # CHANGELOG
 
+## add multithreading (2023-07-09 00:46:50)
+
+### features (2023-07-09 00:46:50)
+
+    - completed arduino sketch for collecting fingerprint from arduino uno
+    - completed feature for uploading fingerprint template data from arduino uno
+
+### log (2023-07-09 00:46:50)
+
+    - ef3373b (HEAD -> main) add multithreading
+
 ## add multithreading (2023-06-21 18:43:50)
 
-### features
+### features (2023-06-21 18:43:50)
 
     - create 02 threads in main code: one for input, one for output
 
-### log
+### log (2023-06-21 18:43:50)
 
     - ef3373b (HEAD -> main) add multithreading
 

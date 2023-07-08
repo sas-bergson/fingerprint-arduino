@@ -4,6 +4,7 @@ build/
 .vscode/
 docs/html/
 docs/latex/
+fingerPrint_enroll/
 
 # Prerequisites
 *.d

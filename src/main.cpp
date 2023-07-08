@@ -2,6 +2,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include "../include/serialport.hpp"
 
@@ -9,8 +11,11 @@
 
 SerialPort *arduino;                  // Declare a pointer to the arduino serial port 
 char incomingData;                    // Declare a buffer to collect incoming data from the port
+std::stringstream ss;                 // Declare a buffer to stack incoming data 
+std::stringstream ss_data;
 char userInput[MAX_DATA_LENGTH];      // Declare a buffer to collect user input
 int pid;                              // Declare a process ID
+uint8_t k = 0;
 
 const std::string currentDateTime() {
     time_t     now = time(0);
@@ -41,10 +46,27 @@ int main(void)
     {
       while (arduino->readSerialPort(&incomingData,1)>0)
       {
-        std::cout << incomingData;
+        ss << incomingData;
+        //std::cout << incomingData; 
         if (incomingData == '\n')
         {
-          std::cout << currentDateTime() << "-->";
+          std::string stmt = ss.str();
+          bool data_available = (stmt.find("packet->data")!=std::string::npos?true:false);
+          if (data_available)
+          {
+             std::cout << "Received packet from arduino" << std::endl;
+             std::string data = stmt.substr(17,stmt.size()-21);
+             ss_data << data;
+             std::cout << currentDateTime() << "-->" << ss_data.str() << std::endl;
+             k++;
+             if (k==4){
+              std::ofstream outfile (currentDateTime());
+              outfile << ss_data.str() << std::endl;
+              outfile.close();
+             }
+          }
+          else std::cout << currentDateTime() << "-->" << stmt << std::endl;
+          std::stringstream().swap(ss);
         }      
       }
     }
