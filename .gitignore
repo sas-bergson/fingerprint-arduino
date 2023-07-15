@@ -6,6 +6,9 @@ docs/html/
 docs/latex/
 fingerPrint_enroll/
 
+# configuration files
+*.json
+
 # Prerequisites
 *.d
 

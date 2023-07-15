@@ -11,7 +11,7 @@ const char *UNIX_DEFAULT = "/dev/ttyACM0";  //sets where the serial port is plug
 SerialPort::SerialPort(const char *portName)
 {
     device = portName;
-    speed = B9600;
+    speed = B57600;
     memset (&tty, 0, sizeof tty);
     connected = false;
 }
@@ -19,7 +19,7 @@ SerialPort::SerialPort(const char *portName)
 SerialPort::SerialPort()
 {
     device = UNIX_DEFAULT;
-    speed = B9600;
+    speed = B57600;
     memset (&tty, 0, sizeof tty);
     connected = false;
 }
