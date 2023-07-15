@@ -1,4 +1,5 @@
-116b845 (HEAD -> main, origin/main) collecting fingerprint template from arduino
+1fcf759 (HEAD -> main) fix fingerprint template upload data
+116b845 (origin/main) collecting fingerprint template from arduino
 829a4ac add multithreading
 ce4ac69 add multithreading
 2525116 add multithreading
