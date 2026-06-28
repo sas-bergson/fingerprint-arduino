@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Image recognition with threshold configuration
+- Persistent template storage on SD card
+- Web dashboard for enrollment management
+- Multi-sensor support
+
+## [1.0.0] - 2026-06-28
+
+### Added
+- **Complete Fingerprint Lock System** — Production-ready fingerprint enrollment, verification, and image capture
+- **Interactive Service Menu** — User-friendly CLI for all operations
+- **Arduino Sketch Upload** — Automated compilation and flashing via arduino-cli with board core auto-install
+- **Async Progress Display** — Real-time feedback during transfers with background thread rendering
+- **File Export & Persistence** — Template (hex/binary) and image (BMP) export with organized directory structure
+- **Image Capture & Streaming** — Raw grayscale image acquisition with 4-bit to 8-bit expansion
+- **Fingerprint Enrollment** — Dual-capture workflow with finger removal detection
+- **Protocol Implementation** — Complete host-firmware communication (v1 ASCII line-based protocol)
+- **API Documentation** — Full Doxygen documentation for all functions, classes, and protocol
+- **Usage Guide** — Comprehensive documentation with build, flash, run, and troubleshooting sections
+- **File Organization** — Automatic `exports/{templates,images}/` directory structure for user-generated data
+
 ### Fixed
 - **File Organization** (main.cpp, .gitignore, docs)
   - Organize fingerprint exports into `exports/templates/` and `exports/images/` subdirectories
@@ -17,12 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improve project root cleanliness by centralizing user-generated exports
   - Add comprehensive export organization guide (exports/README.md)
   - Update docs/USAGE.md with file location reference and backup examples
-
-### Planned
-- Image recognition with threshold configuration
-- Persistent template storage on SD card
-- Web dashboard for enrollment management
-- Multi-sensor support
 
 ## [0.9.0] - 2026-06-27
 

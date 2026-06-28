@@ -73,9 +73,10 @@ See [docs/README.md](docs/README.md) for detailed documentation info.
 - **[API Documentation](docs/README.md)** - Generated Doxygen documentation for all code
   - View: [docs/html/index.html](docs/html/index.html)
   - Regenerate: `./scripts/regenerate-docs.sh`
+- **[Versioning & Release Workflow](docs/VERSIONING.md)** - Automated version management, releases, and conventional commits
 - **[Recent Major Changes](docs/CHANGES.md)** - Overview of v1.0.0 updates in main.cpp and FingerPrint_Enroll.ino
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to this project
-- **[Development Guide](DEVELOPMENT.md)** - Setup for developers and release workflow
+- **[Development Guide](DEVELOPMENT.md)** - Setup for developers
 
 ## 🏗️ Project Structure
 
@@ -138,6 +139,14 @@ All changes are documented in [CHANGELOG.md](CHANGELOG.md). For release notes, s
 
 This project is licensed under the [LICENSE.txt](LICENSE.txt) - see file for details.
 
-## ✨ Versioning
+## ✨ Versioning & Releases
 
-This project follows [Semantic Versioning](https://semver.org/). See [DEVELOPMENT.md](DEVELOPMENT.md) for release procedures.
+This project follows [Semantic Versioning](https://semver.org/) with **automated version management**. 
+
+**Key Points:**
+- Version stored in [version.txt](version.txt)
+- Use conventional commits (`feat:`, `fix:`, etc.) for automatic version bumping
+- Build system auto-increments version based on commits
+- Formal releases via `./scripts/release.sh`
+
+📖 **See [docs/VERSIONING.md](docs/VERSIONING.md)** for the complete workflow.
