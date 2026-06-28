@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 # TODO 2: Create a project named fingerprintsensor
 project("fingerprintsensor" 
         LANGUAGES CXX 
-        VERSION 1.0
+        VERSION 1.0.0
         DESCRIPTION "Fingerprint system based on Arduino"
         HOMEPAGE_URL "https://github.com/sas-bergson/fingerprint-arduino")
 
@@ -15,6 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include(GNUInstallDirs)
+find_package(Threads REQUIRED)
 
 set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR})
