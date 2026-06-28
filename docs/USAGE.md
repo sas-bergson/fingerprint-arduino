@@ -453,18 +453,75 @@ sudo ./bin/fingerprintsensor
 
 ## File Output
 
-When running the interactive service, the following files are created:
+When running the interactive service, fingerprint data is automatically organized into the `exports/` directory structure:
 
-| File                                | Location          | Description                      |
-| ----------------------------------- | ----------------- | -------------------------------- |
-| `fingerprint_<timestamp>.txt`       | Current directory | Hex-encoded fingerprint template |
-| `fingerprint_<timestamp>.bin`       | Current directory | Binary fingerprint template      |
-| `fingerprint_image_<timestamp>.bmp` | Current directory | 256x288 grayscale BMP image      |
+### Directory Organization
 
-Timestamp format: `YYYY-MM-DD.HH-MM-SS` (e.g., `2026-06-28.13-45-22`)
+```
+exports/
+├── templates/        # Fingerprint template data (hex and binary)
+│   ├── YYYY-MM-DD.HH-MM-SS_idN.txt    # Hex-encoded template
+│   └── YYYY-MM-DD.HH-MM-SS_idN.bin    # Binary template
+└── images/          # Fingerprint images (BMP format)
+    └── fingerprint_YYYY-MM-DD.HH-MM-SS.bmp    # Grayscale image
+```
+
+### Files Created
+
+| File Type         | Location             | Naming                                | Size    | Description                   |
+| ----------------- | -------------------- | ------------------------------------- | ------- | ----------------------------- |
+| Template (hex)    | `exports/templates/` | `YYYY-MM-DD.HH-MM-SS_id1.txt`         | ~3 KB   | Space-separated hex bytes     |
+| Template (binary) | `exports/templates/` | `YYYY-MM-DD.HH-MM-SS_id1.bin`         | ~2.7 KB | Raw binary format             |
+| Fingerprint image | `exports/images/`    | `fingerprint_YYYY-MM-DD.HH-MM-SS.bmp` | ~75 KB  | 8-bit grayscale BMP (256×288) |
+
+**Timestamp format:** `YYYY-MM-DD.HH-MM-SS` (e.g., `2026-06-28.13-45-22`)
+
+### Examples
+
+After enrolling fingerprint ID 1:
+```bash
+ls -lh exports/templates/
+# Output:
+# -rw-r--r-- 1 user group 2.8K Jun 28 13:45 2026-06-28.13-45-22_id1.txt
+# -rw-r--r-- 1 user group 2.7K Jun 28 13:45 2026-06-28.13-45-22_id1.bin
+```
+
+After capturing an image:
+```bash
+ls -lh exports/images/
+# Output:
+# -rw-r--r-- 1 user group  75K Jun 28 13:47 fingerprint_2026-06-28.13-47-11.bmp
+```
+
+### Viewing Exports
+
+View hex template:
+```bash
+cat exports/templates/2026-06-28.13-45-22_id1.txt
+# Output: 6F 00 E7 FF E7 FF BF 7F DF 7F EF 7F F7 7F ...
+```
+
+Open fingerprint image:
+```bash
+feh exports/images/fingerprint_2026-06-28.13-47-11.bmp
+# Or use any BMP viewer (GIMP, Photoshop, Paint, Preview, etc.)
+```
+
+### Backing Up Exports
+
+```bash
+# Archive all exports with timestamp
+tar -czf fingerprint_exports_$(date +%Y%m%d_%H%M%S).tar.gz exports/
+
+# Copy to external storage
+cp -r exports/ /mnt/usb/backup/
+```
+
+For more details on working with exports, see [exports/README.md](../exports/README.md).
 
 ## Next Steps
 
 - Read [Protocol Specification](protocol.md) for low-level communication details
 - See [Documentation](README.md) for API documentation
 - Check [DEVELOPMENT.md](../DEVELOPMENT.md) for contributing changes
+- Learn more about exports organization in [exports/README.md](../exports/README.md)

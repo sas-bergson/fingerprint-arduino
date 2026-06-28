@@ -188,6 +188,30 @@ static std::string stemOf(const std::string &path)
 }
 
 /**
+ * @brief Ensure export directory structure exists for fingerprint data.
+ *
+ * Creates `exports/templates/` and `exports/images/` subdirectories if they don't exist.
+ * Uses `mkdir -p` via system call for robustness.
+ *
+ * @return true if directories exist or were created successfully, false on error.
+ */
+static bool ensureExportDirectories()
+{
+  const std::string exportRoot = "exports";
+  const std::string templatesDir = exportRoot + "/templates";
+  const std::string imagesDir = exportRoot + "/images";
+
+  // Create both directories with mkdir -p (no error if already exist)
+  const std::string mkdirCmd = "mkdir -p " + shellEscape(templatesDir) + " " + shellEscape(imagesDir);
+  if (std::system(mkdirCmd.c_str()) != 0)
+  {
+    std::cerr << "Error: could not create export directories." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+/**
  * @brief Stage a sketch file into an Arduino-compatible directory layout.
  *
  * Arduino CLI expects the sketch directory name to match the main `.ino`
@@ -942,10 +966,21 @@ static std::vector<uint8_t> expandGray4PackedToGray8(const std::vector<uint8_t> 
 
 /**
  * @brief Persist fingerprint template bytes to `.txt` and `.bin` output files.
+ *
+ * Exports are saved to `exports/templates/` subdirectory with timestamp and ID.
+ * Creates hex-encoded `.txt` and binary `.bin` versions for flexibility.
+ *
+ * @param bytes Template data bytes.
+ * @param fingerId Fingerprint ID for filename identification.
  */
 static void persistFingerprintTemplate(const std::vector<uint8_t> &bytes, int fingerId)
 {
-  const std::string baseName = filenameTimestamp() + "_id" + std::to_string(fingerId);
+  if (!ensureExportDirectories())
+  {
+    return;
+  }
+
+  const std::string baseName = "exports/templates/" + filenameTimestamp() + "_id" + std::to_string(fingerId);
   std::ofstream textFile(baseName + ".txt", std::ios::out | std::ios::trunc);
   std::ofstream binaryFile(baseName + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
 
@@ -977,6 +1012,13 @@ static void persistFingerprintTemplate(const std::vector<uint8_t> &bytes, int fi
 
 /**
  * @brief Persist raw grayscale image to local uncompressed 8-bit BMP file.
+ *
+ * Exports are saved to `exports/images/` subdirectory in standard Windows BMP format
+ * with 8-bit grayscale palette. Row-major layout with proper padding.
+ *
+ * @param bytes Raw grayscale image data (8 bits per pixel).
+ * @param width Image width in pixels (typically 256).
+ * @param height Image height in pixels (typically 288).
  */
 static void persistFingerprintImageBmp(const std::vector<uint8_t> &bytes, int width, int height)
 {
@@ -994,7 +1036,12 @@ static void persistFingerprintImageBmp(const std::vector<uint8_t> &bytes, int wi
     return;
   }
 
-  const std::string fileName = "fingerprint_" + filenameTimestamp() + ".bmp";
+  if (!ensureExportDirectories())
+  {
+    return;
+  }
+
+  const std::string fileName = "exports/images/fingerprint_" + filenameTimestamp() + ".bmp";
   std::ofstream out(fileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
   if (!out)
   {

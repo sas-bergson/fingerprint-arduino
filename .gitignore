@@ -5,6 +5,7 @@ build/
 docs/html/
 docs/latex/
 fingerPrint_enroll/
+exports/
 
 # configuration files
 *.json
