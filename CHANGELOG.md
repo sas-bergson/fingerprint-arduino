@@ -7,13 +7,159 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **File Organization** (main.cpp, .gitignore, docs)
+  - Organize fingerprint exports into `exports/templates/` and `exports/images/` subdirectories
+  - Add `ensureExportDirectories()` function for automatic directory creation
+  - Update `persistFingerprintTemplate()` to save templates to organized subdirectory
+  - Update `persistFingerprintImageBmp()` to save BMP images to organized subdirectory
+  - Exclude `exports/` from Git to keep biometric data private
+  - Improve project root cleanliness by centralizing user-generated exports
+  - Add comprehensive export organization guide (exports/README.md)
+  - Update docs/USAGE.md with file location reference and backup examples
+
 ### Planned
 - Image recognition with threshold configuration
 - Persistent template storage on SD card
 - Web dashboard for enrollment management
 - Multi-sensor support
 
-## [1.0.0] - 2026-01-15
+## [0.9.0] - 2026-06-27
+
+### Added
+- **Interactive Service Menu** (`printServiceMenu`, `runServiceMenu` in main.cpp)
+  - CLI-driven command dispatcher with user-friendly menu
+  - Integrated flash mode launch from service loop
+  - Graceful shutdown and error handling
+
+### Fixed
+- Command-line parsing robustness for edge cases
+
+## [0.8.0] - 2026-06-24
+
+### Added
+- **File Export & Persistence** (main.cpp)
+  - Template export to `.txt` (hex) and `.bin` (binary) formats via `persistFingerprintTemplate()`
+  - Grayscale image export to uncompressed 8-bit Windows BMP files via `persistFingerprintImageBmp()`
+  - Timestamp-based filename generation with `filenameTimestamp()`
+  - Row-major BMP pixel layout with proper Windows padding
+  - 4-bit to 8-bit grayscale expansion via `expandGray4PackedToGray8()`
+
+## [0.7.0] - 2026-06-21
+
+### Added
+- **Async Progress Display** (main.cpp)
+  - `AsyncProgressDisplay` class for real-time transfer feedback
+  - Background thread rendering with atomic state updates
+  - `printTransferProgress()` for CLI-style progress bar (40-char width, % complete, elapsed time, packet count)
+  - `printTransferSummary()` for final transfer statistics
+  - `formatDuration()` for human-readable elapsed time (MMmSSs format)
+
+### Changed
+- Transfer workflows now show live progress instead of silent delays
+
+## [0.6.0] - 2026-06-18
+
+### Added
+- **Image Capture & Export** (FingerPrint_Enroll.ino)
+  - `handleCaptureImage()` command dispatcher for image acquisition
+  - `streamImageBytes()` with 4-bit grayscale packet streaming (IMG format)
+  - `requestImageUpload()` for initiating sensor image upload
+  - `setSensorBaudRuntime()` for dynamic baud reconfiguration
+  - Multi-packet recovery with fallback to lower baud (57600 → 19200) on persistent errors
+  - Image height validation from received bytes for module compatibility
+  - Stream error codes 600X-630X range
+
+### Added (main.cpp)
+- `requestFingerprintImageCapture()` for coordinating host-side image flow
+- `parseImageLine()` and `parseImageBinaryHeader()` for protocol parsing
+- `consumeImageFrameDelimiter()` for robust frame boundary handling
+
+## [0.5.0] - 2026-06-14
+
+### Added
+- **Fingerprint Enrollment Flow** (FingerPrint_Enroll.ino)
+  - `handleReadStoreExport()` command dispatcher for dual-capture enrollment
+  - Dual-finger capture workflow with removal detection via `waitUntilNoFinger()`
+  - `waitForFingerImage()` for polling image acquisition with timeout
+  - `captureErrorLabel()` for human-readable error mapping
+  - Image-to-template conversion via `image2Tz()`
+  - Model creation and storage via `createModel()` and `storeModel()`
+  - `streamTemplateBytes()` for exporting stored templates as TPL packets
+  - Stream error codes 90X-130X range
+
+### Added (main.cpp)
+- `requestFingerprintReadStore()` for host-side enrollment orchestration
+- `parseTemplateLine()` for TPL packet parsing
+- `parseHexBytes()` for protocol hex-string decoding
+
+## [0.4.0] - 2026-06-11
+
+### Added
+- **Board & Sensor Status Reporting** (FingerPrint_Enroll.ino)
+  - `handleBoardStatus()` with firmware version, UART baud, board type metadata
+  - `handleFingerprintStatus()` with sensor capacity, security level, packet length, stored template count
+  - Sensor readiness tracking via `sensorReady` and `sensorUartBaud` globals
+
+### Added (main.cpp)
+- `requestSimpleStatus()` for single-command status queries
+- `parseResponseLine()` for RSP protocol line parsing
+- Global constants for command codes (CMD_BOARD_STATUS, CMD_FP_STATUS, CMD_READ_STORE_EXPORT, CMD_CAPTURE_IMAGE)
+- Global constants for status codes (STS_OK, STS_ERR, STS_INVALID_CMD, STS_SENSOR_NOT_FOUND, STS_TIMEOUT, STS_ENROLL_FAIL)
+
+## [0.3.0] - 2026-06-07
+
+### Added
+- **Arduino Sketch Flash/Upload Automation** (main.cpp)
+  - `flashArduino()` for arduino-cli compile and upload pipeline
+  - `prepareSketchDirectory()` for sketch staging into Arduino-compatible layout
+  - `resolveArduinoCliPath()` for CLI binary auto-discovery (system PATH, ~/.local/bin)
+  - Board core and library auto-installation via arduino-cli with `--prepare` flag
+  - Shell escaping via `shellEscape()` for safe argument passing
+  - Comprehensive error reporting and diagnostics
+
+### Added
+- Path utilities: `dirnameOf()`, `basenameOf()`, `stemOf()`, `endsWith()`
+- `runCommand()` for shell command execution with status reporting
+
+## [0.2.0] - 2026-06-04
+
+### Added
+- **Serial Communication Framework** (FingerPrint_Enroll.ino & main.cpp)
+  - Line-delimited protocol with CMD/EVT/RSP/TPL packet types
+  - `sendEvent()`, `sendResponse()` for firmware message transmission
+  - `sendCommand()` for host command sending
+  - `readSerialLine()` with timeout handling
+  - `readSerialByteWithTimeout()` and `readSerialBytesExact()` for low-level I/O
+  - `drainSerialInput()` for synchronization and buffer clearing
+  - Structured packet reading via `readSensorStructuredPacket()` with multi-stage error reporting
+  - Checksum validation and packet size constraints (300-byte limit)
+
+### Added (FingerPrint_Enroll.ino)
+- Sensor UART link initialization: `initializeSensorLink()`, `trySensorBaud()`
+  - Baud detection sequence: 57600 → 19200 → 9600
+  - Password verification and parameter readout
+- `readSensorByte()` with millisecond-precision timeout
+- Helper utilities: `byteToHex()` for hex string conversion
+
+### Added (main.cpp)
+- Input parsing: `split()` for delimiter-based string tokenization
+- Protocol constants and global state management
+
+## [0.1.0] - 2026-06-01
+
+### Added
+- **Project Foundation** (main.cpp & FingerPrint_Enroll.ino)
+  - CMake build system with C++11 standard
+  - Arduino Uno firmware skeleton
+  - Host application entry point via `main()` and Arduino entry points `setup()`, `loop()`
+  - CLI argument parsing via `parseArguments()` supporting `--flash`, `--port`, `--board`, `--sketch`, `--prepare`, `--cli`
+  - `printUsage()` for help text
+  - Time utilities: `currentDateTime()` for logging, `filenameTimestamp()` for safe filenames
+  - Command dispatching backbone via `processCommandLine()` in firmware
+  - Initial status code framework
+
+## [1.0.0] - 2026-06-28
 
 ### Documentation
 - **Automated API Documentation** - Doxygen integration for all C++ and Arduino code
