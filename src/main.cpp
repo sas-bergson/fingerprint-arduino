@@ -814,7 +814,32 @@ static void waitForStartupEvents(SerialPort &arduino)
 
     if (line.rfind("EVT|", 0) == 0)
     {
-      std::cout << "[event] " << line << std::endl;
+      // Parse event: EVT|cmd|code|message
+      const std::vector<std::string> parts = split(line, '|');
+      if (parts.size() >= 4)
+      {
+        int eventCmd = std::atoi(parts[1].c_str());
+        int eventCode = std::atoi(parts[2].c_str());
+        std::string eventMsg = parts[3];
+
+        // Format event display based on event type
+        std::string displayMsg;
+        if (eventCode >= 900 && eventCode <= 999)
+        {
+          // Fingerprint capture events - more prominent
+          displayMsg = ">>> " + eventMsg;
+        }
+        else
+        {
+          displayMsg = "[event] " + eventMsg;
+        }
+
+        std::cout << displayMsg << std::endl;
+      }
+      else
+      {
+        std::cout << "[event] " << line << std::endl;
+      }
       continue;
     }
 
@@ -1152,7 +1177,26 @@ static bool requestSimpleStatus(SerialPort &arduino, int commandCode)
     {
       if (line.rfind("EVT|", 0) == 0)
       {
-        std::cout << "[event] " << line << std::endl;
+        // Parse and format event
+        const std::vector<std::string> parts = split(line, '|');
+        if (parts.size() >= 4)
+        {
+          int eventCode = std::atoi(parts[2].c_str());
+          std::string eventMsg = parts[3];
+
+          if (eventCode >= 900 && eventCode <= 999)
+          {
+            std::cout << ">>> " << eventMsg << std::endl;
+          }
+          else
+          {
+            std::cout << "[event] " << eventMsg << std::endl;
+          }
+        }
+        else
+        {
+          std::cout << "[event] " << line << std::endl;
+        }
       }
       else
       {
@@ -1225,7 +1269,27 @@ static bool requestFingerprintReadStore(SerialPort &arduino)
 
     if (line.rfind("EVT|", 0) == 0)
     {
-      std::cout << "[event] " << line << std::endl;
+      // Parse and format event
+      const std::vector<std::string> parts = split(line, '|');
+      if (parts.size() >= 4)
+      {
+        int eventCode = std::atoi(parts[2].c_str());
+        std::string eventMsg = parts[3];
+
+        if (eventCode >= 900 && eventCode <= 999)
+        {
+          std::cout << ">>> " << eventMsg << std::endl;
+        }
+        else
+        {
+          std::cout << "[event] " << eventMsg << std::endl;
+        }
+      }
+      else
+      {
+        std::cout << "[event] " << line << std::endl;
+      }
+
       if (line.find("|30|200|") != std::string::npos)
       {
         templateStreamingStarted = true;
@@ -1311,7 +1375,27 @@ static bool requestFingerprintImageCapture(SerialPort &arduino)
 
     if (line.rfind("EVT|", 0) == 0)
     {
-      std::cout << "[event] " << line << std::endl;
+      // Parse and format event
+      const std::vector<std::string> parts = split(line, '|');
+      if (parts.size() >= 4)
+      {
+        int eventCode = std::atoi(parts[2].c_str());
+        std::string eventMsg = parts[3];
+
+        if (eventCode >= 900 && eventCode <= 999)
+        {
+          std::cout << ">>> " << eventMsg << std::endl;
+        }
+        else
+        {
+          std::cout << "[event] " << eventMsg << std::endl;
+        }
+      }
+      else
+      {
+        std::cout << "[event] " << line << std::endl;
+      }
+
       if (line.find("|40|200|") != std::string::npos)
       {
         imageStreamingStarted = true;

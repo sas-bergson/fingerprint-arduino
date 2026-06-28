@@ -112,29 +112,142 @@ void handleFingerprintStatus()
 /**
  * @brief Wait until a finger is present and image acquisition succeeds.
  */
-int waitForFingerImage(int cmdCode)
+/**
+ * @brief Wait for fingerprint image with intermediate feedback events.
+ *
+ * Provides deterministic finger detection with clear user feedback:
+ * 1. Sends "waiting" events every 500ms so user knows system is listening
+ * 2. Detects when finger is first placed (within 3 seconds ideally)
+ * 3. Once detected, waits for minimum hold time (800ms) for good quality
+ * 4. Terminates on success, error, or 10-second timeout
+ *
+ * This replaces the silent polling approach with active feedback, ensuring
+ * users know exactly when to place/hold the finger and when capture is complete.
+ *
+ * @param cmdCode Command code for event reporting
+ * @return FINGERPRINT_OK on success, error code otherwise
+ */
+int waitForFingerImageWithFeedback(int cmdCode)
 {
-    const unsigned long start = millis();
+    const unsigned long totalTimeoutMs = 10000UL;   // 10 second total timeout
+    const unsigned long minHoldTimeMs = 800UL;      // Finger must be present for 800ms
+    const unsigned long feedbackIntervalMs = 500UL; // Send feedback every 500ms
+
+    unsigned long startTime = millis();
+    unsigned long lastFeedbackTime = 0;
+    unsigned long fingerDetectedTime = 0; // When finger first detected (0 = not yet)
+
     while (true)
     {
-        int p = finger.getImage();
-        if (p == FINGERPRINT_OK)
-        {
-            return FINGERPRINT_OK;
-        }
-        if (p == FINGERPRINT_PACKETRECIEVEERR || p == FINGERPRINT_IMAGEFAIL)
-        {
-            return p;
-        }
+        unsigned long now = millis();
+        unsigned long elapsedMs = now - startTime;
 
-        if (millis() - start > 20000UL)
+        // Check total timeout
+        if (elapsedMs > totalTimeoutMs)
         {
-            sendEvent(cmdCode, 901, "timeout waiting for finger");
+            sendEvent(cmdCode, 901, "timeout: no finger detected within 10 seconds");
             return STS_TIMEOUT;
         }
 
-        delay(100);
+        // Send feedback every 500ms so user knows system is waiting
+        if ((now - lastFeedbackTime) >= feedbackIntervalMs)
+        {
+            if (fingerDetectedTime == 0)
+            {
+                // Still waiting for finger
+                unsigned long waitedSeconds = elapsedMs / 1000;
+                String msg = "waiting for finger (";
+                msg += String(waitedSeconds);
+                msg += "s)";
+                sendEvent(cmdCode, 902, msg);
+            }
+            else
+            {
+                // Finger detected, show hold time
+                unsigned long holdTimeMs = now - fingerDetectedTime;
+                unsigned long holdTimeNeededMs = (minHoldTimeMs > holdTimeMs) ? (minHoldTimeMs - holdTimeMs) : 0;
+                if (holdTimeNeededMs > 0)
+                {
+                    String msg = "finger detected, hold for ";
+                    msg += String(holdTimeNeededMs);
+                    msg += "ms";
+                    sendEvent(cmdCode, 903, msg);
+                }
+            }
+            lastFeedbackTime = now;
+        }
+
+        // Try to capture image
+        int p = finger.getImage();
+
+        if (p == FINGERPRINT_OK)
+        {
+            // Finger detected and image captured successfully!
+            if (fingerDetectedTime == 0)
+            {
+                // First detection
+                fingerDetectedTime = millis();
+            }
+
+            // Check if finger has been held long enough
+            unsigned long holdTimeMs = millis() - fingerDetectedTime;
+            if (holdTimeMs >= minHoldTimeMs)
+            {
+                // Good quality capture achieved
+                sendEvent(cmdCode, 904, "fingerprint captured successfully");
+                return FINGERPRINT_OK;
+            }
+
+            // Finger detected but not held long enough yet, continue polling
+            delay(50);
+            continue;
+        }
+
+        // If image collection fails, reset detection timer
+        if (p == FINGERPRINT_IMAGEFAIL)
+        {
+            if (fingerDetectedTime != 0)
+            {
+                sendEvent(cmdCode, 905, "image quality poor, retrying");
+                fingerDetectedTime = 0; // Reset hold time counter
+            }
+            delay(50);
+            continue;
+        }
+
+        // Communication error
+        if (p == FINGERPRINT_PACKETRECIEVEERR)
+        {
+            sendEvent(cmdCode, 906, "communication error with sensor");
+            return p;
+        }
+
+        // No finger currently detected
+        if (p == FINGERPRINT_NOFINGER)
+        {
+            if (fingerDetectedTime != 0)
+            {
+                // Finger was being held but now removed before hold time complete
+                sendEvent(cmdCode, 907, "finger removed too early, place again");
+                fingerDetectedTime = 0; // Reset
+            }
+            delay(50);
+            continue;
+        }
+
+        // Other error
+        delay(50);
     }
+}
+
+/**
+ * @brief Backward compatible wrapper using improved algorithm.
+ *
+ * For compatibility, this calls the improved version internally.
+ */
+int waitForFingerImage(int cmdCode)
+{
+    return waitForFingerImageWithFeedback(cmdCode);
 }
 
 /**
@@ -162,24 +275,60 @@ String captureErrorLabel(int code)
 }
 
 /**
- * @brief Wait until no finger is present.
+ * @brief Wait until no finger is present with progress feedback.
+ *
+ * Sends periodic feedback so user knows system is monitoring finger removal.
+ * Useful after capture to ensure user removes finger before next operation.
+ *
+ * @param timeoutMs Maximum time to wait for finger removal
+ * @return true if finger was successfully removed, false on timeout
  */
-bool waitUntilNoFinger(int timeoutMs)
+bool waitUntilNoFingerWithFeedback(int timeoutMs)
 {
-    const unsigned long start = millis();
+    unsigned long startTime = millis();
+    unsigned long lastFeedbackTime = 0;
+    const unsigned long feedbackIntervalMs = 500UL;
+
     while (true)
     {
+        unsigned long now = millis();
+        unsigned long elapsedMs = now - startTime;
+
+        // Check timeout
+        if (elapsedMs > static_cast<unsigned long>(timeoutMs))
+        {
+            sendEvent(CMD_READ_STORE_EXPORT, 910, "timeout: finger not removed");
+            return false;
+        }
+
+        // Send feedback every 500ms
+        if ((now - lastFeedbackTime) >= feedbackIntervalMs)
+        {
+            String msg = "remove finger (";
+            msg += String((timeoutMs - elapsedMs) / 1000);
+            msg += "s timeout)";
+            sendEvent(CMD_READ_STORE_EXPORT, 911, msg);
+            lastFeedbackTime = now;
+        }
+
+        // Check if finger is gone
         int p = finger.getImage();
         if (p == FINGERPRINT_NOFINGER)
         {
+            sendEvent(CMD_READ_STORE_EXPORT, 912, "finger removed");
             return true;
         }
-        if ((millis() - start) > static_cast<unsigned long>(timeoutMs))
-        {
-            return false;
-        }
+
         delay(80);
     }
+}
+
+/**
+ * @brief Backward compatible wrapper using improved algorithm.
+ */
+bool waitUntilNoFinger(int timeoutMs)
+{
+    return waitUntilNoFingerWithFeedback(timeoutMs);
 }
 
 /**
