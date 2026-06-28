@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Web dashboard for enrollment management
 - Multi-sensor support
 
+## [1.0.1] - 2026-06-28
+
+### Fixed
+- **Fingerprint Capture Reliability** (FingerPrint_Enroll.ino, main.cpp)
+  - Replace silent polling with active feedback events (500ms updates)
+  - Implement deterministic finger detection with 800ms minimum hold time
+  - Add clear user guidance: "waiting for finger" → "finger detected" → "hold steady"
+  - Improve `waitUntilNoFinger()` with progress updates and timeout feedback
+  - Reduce total capture timeout from 20s to 10s for better user experience
+  - Enhance host app event display with ">>>" prefix for fingerprint events (codes 900+)
+  - Parse and format fingerprint capture feedback for improved UX
+  - **Result**: Users now receive real-time feedback at every stage, eliminating capture uncertainty
+
 ## [1.0.0] - 2026-06-28
 
 ### Added
