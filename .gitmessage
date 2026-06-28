@@ -1,0 +1,19 @@
+# Commit message format:
+# <type>(<scope>): <subject>
+#
+# Type: feat, fix, docs, refactor, perf, test, build, ci, chore, style
+# Scope: main.cpp, FingerPrint_Enroll.ino, serialport, cmake, docs, etc.
+# Subject: imperative mood, lowercase, no period
+#
+# CHANGELOG ENTRY (if releasing):
+# Version: (e.g., 0.10.0 or 1.0.1)
+# Section: Added, Changed, Fixed, Removed, Deprecated, Security
+# Entry: Brief description of user-facing change
+#
+# Example:
+# feat(main.cpp): add status code validation
+#
+# Version: 0.5.1
+# Section: Fixed
+# Entry: - Status code validation prevents invalid responses from crashing host app
+#

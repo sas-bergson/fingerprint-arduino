@@ -44,6 +44,31 @@ git merge feature/my-feature
 git push origin main
 ```
 
+### Changelog Management
+
+To keep `CHANGELOG.md` synchronized with code changes, we use **conventional commits** and an automated helper script.
+
+**For every commit:**
+1. Use conventional format: `type(scope): description`
+2. Git will show a template with changelog entry fields
+3. Optionally add `[CHANGELOG]` metadata for user-facing changes
+
+**When releasing a version:**
+```bash
+# Preview recent commits as changelog entries
+./scripts/changelog-helper.sh --generate
+
+# Generate and insert new version section
+./scripts/changelog-helper.sh --version X.Y.Z --date YYYY-MM-DD
+
+# Edit CHANGELOG.md to polish and consolidate
+# Then commit:
+git add CHANGELOG.md
+git commit -m "docs: release vX.Y.Z"
+```
+
+**See full details:** [docs/CHANGELOG_WORKFLOW.md](docs/CHANGELOG_WORKFLOW.md)
+
 ## 📦 Semantic Versioning (SEMVER)
 
 This project follows [Semantic Versioning 2.0.0](https://semver.org/).
