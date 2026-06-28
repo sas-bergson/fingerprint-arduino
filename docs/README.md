@@ -245,6 +245,18 @@ Documentation version is tied to project version in:
 - `doxygen.cfg` - PROJECT_NUMBER (optional)
 - `include/version.h` - FINGERPRINT_VERSION
 
+## Related Documentation
+
+For information on **how to use** the compiled application:
+- **[Usage Guide](USAGE.md)** - Building, flashing Arduino, and running the interactive service menu
+
+For project contribution and development:
+- **[Development Guide](../DEVELOPMENT.md)** - Development setup, versioning, and release workflow
+- **[Changelog Workflow](CHANGELOG_WORKFLOW.md)** - How to keep CHANGELOG.md in sync with code changes
+
+For protocol implementation details:
+- **[Protocol Specification](protocol.md)** - Low-level host ↔ firmware communication
+
 ## Contributing
 
 When submitting code changes:

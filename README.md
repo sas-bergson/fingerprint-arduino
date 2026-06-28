@@ -28,8 +28,25 @@ An Arduino-based biometric fingerprint lock system with host-firmware communicat
 mkdir build && cd build
 cmake ..
 make              # Builds application + API documentation
-./bin/fingerprintsensor
 ```
+
+### Using the Host Application
+
+The compiled application (`./bin/fingerprintsensor`) has two modes:
+
+1. **Interactive Mode** (default) - Menu-driven CLI to manage fingerprints:
+   ```bash
+   ./bin/fingerprintsensor
+   # Shows menu for enrolling, capturing images, checking sensor status, etc.
+   ```
+
+2. **Flash Mode** - Upload new firmware to Arduino:
+   ```bash
+   ./bin/fingerprintsensor --flash --prepare
+   # Installs board core, compiles, and uploads to Arduino
+   ```
+
+**For complete usage instructions:** See [docs/USAGE.md](docs/USAGE.md)
 
 ### Building API Documentation
 
@@ -49,15 +66,9 @@ xdg-open docs/html/index.html  # Linux
 
 See [docs/README.md](docs/README.md) for detailed documentation info.
 
-### Uploading Firmware
-
-```bash
-arduino-cli compile --fqbn arduino:avr:uno build/arduino-cli-sketches/FingerPrint_Enroll/
-arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:uno build/arduino-cli-sketches/FingerPrint_Enroll/
-```
-
 ## 📚 Documentation
 
+- **[Usage Guide](docs/USAGE.md)** ⭐ **START HERE** - How to build, flash, and run the application
 - **[Protocol Specification](docs/protocol.md)** - Host ↔ Firmware communication protocol (v1)
 - **[API Documentation](docs/README.md)** - Generated Doxygen documentation for all code
   - View: [docs/html/index.html](docs/html/index.html)
